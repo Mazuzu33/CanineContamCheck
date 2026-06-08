@@ -1,0 +1,1 @@
+data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz filter=lfs diff=lfs merge=lfs -text
