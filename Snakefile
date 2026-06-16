@@ -1,19 +1,23 @@
 configfile: "config/config.yaml"
 
+wildcard_constraints:
+    filetype="(bam|cram)"
+
 rule verifybamid:
     input:
-        bam="{sample}.bam"
+        bam="{sample}.{filetype}"
     output:
-        selfsm="results/{sample}/{sample}.selfSM"
-        ancestry="results/{sample}/{sample}.ancestry"
+        selfsm="results/{sample}/{sample}.{filetype}.selfSM"
+        ancestry="results/{sample}/{sample}.{filetype}.ancestry"
     conda:
         "envs/verifybamid.yaml"
     shell:
-        r"""
+        """
         verifybamid2 --SVDPrefix {config[resource_files]}
         --Reference {config[reference_panel]}
         --NumPC 3
-        --BamFile {wildcards.sample}.bam
-        --Output results/{wildcards.sample}
+        --BamFile {wildcards.sample}.{wildcards.filetype}
+        --Output results/{wildcards.sample}.{wildcards.filetype}
         """
 
+        
