@@ -10,7 +10,7 @@ rule all:
 
 rule verifybamid:
     input:
-        bam="{sample}.{filetype}"
+        bam="/samples/{sample}.{filetype}"
     output:
         selfsm="results/{sample}/{sample}.{filetype}.selfSM",
         ancestry="results/{sample}/{sample}.{filetype}.ancestry"
@@ -21,8 +21,8 @@ rule verifybamid:
         verifybamid2 --SVDPrefix {config[resource_files]}
         --Reference {config[reference_panel]}
         --NumPC 3
-        --BamFile {wildcards.sample}.{wildcards.filetype}
-        --Output results/{wildcards.sample}.{wildcards.filetype}
+        --BamFile {input.bam}
+        --Output results/{sample}/{wildcards.sample}.{wildcards.filetype}
         """
 
         
