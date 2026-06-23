@@ -5,14 +5,14 @@ SAMPLES, SUFFIXES, FILETYPES = glob_wildcards("samples/{sample}.{suffix}.{filety
 rule all:
     input:
         expand("results/{sample}/{sample}.{suffix}.{filetype}.selfSM", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
+        expand("results/{sample}/{sample}.{suffix}.{filetype}.Ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
 
 rule verifybamid:
     input:
         bam="samples/{sample}.{suffix}.{filetype}"
     output:
         selfsm="results/{sample}/{sample}.{suffix}.{filetype}.selfSM",
-        ancestry="results/{sample}/{sample}.{suffix}.{filetype}.ancestry"
+        ancestry="results/{sample}/{sample}.{suffix}.{filetype}.Ancestry"
     conda:
         "envs/verifybamid.yaml"
     shell:
