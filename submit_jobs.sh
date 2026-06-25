@@ -6,6 +6,7 @@
 #SBATCH -p msismall
 #SBATCH -o /projects/standard/fried255/shared/ForMazuki/logs/slurm-%j.out
 
+cd /projects/standard/fried255/shared/ForMazuki/CanineContamCheck
 module load miniforge
 source activate ../snakemake_env_test
 snakemake --sdm conda \
