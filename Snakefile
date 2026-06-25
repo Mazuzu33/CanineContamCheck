@@ -17,7 +17,6 @@ rule verifybamid:
         "envs/verifybamid.yaml"
     shell:
         """
-        ls data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz
         verifybamid2 --SVDPrefix {config[resource_files]} \
         --Reference {config[reference_genome]} \
         --NumPC 3 \
