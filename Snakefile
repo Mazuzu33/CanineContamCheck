@@ -5,7 +5,8 @@ SAMPLES, SUFFIXES, FILETYPES = glob_wildcards("samples/{sample}.{suffix}.{filety
 rule all:
     input:
         expand("results/{sample}/{sample}.{suffix}.{filetype}.selfSM", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.Ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
+        expand("results/{sample}/{sample}.{suffix}.{filetype}.Ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
+        # expand("results/{sample}/{sample}.{suffix}.{filetype}.qualimap", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
 
 rule verifybamid:
     input:
@@ -25,6 +26,26 @@ rule verifybamid:
         --Output results/{wildcards.sample}/{wildcards.sample}.{wildcards.suffix}.{wildcards.filetype}
         """
 
-
-
-        
+rule coordinatesortbam:
+    input:
+        bam="samples/{sample}.{suffix}.{filetype}"
+    output:
+        bam_ready="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam",
+        bam_ready_ind ="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam.bai"
+    conda:
+        "envs/samtools.yaml"
+    shell:
+        """
+        samtools sort {input.bam} -o {output.bam_ready} --reference {config[reference_genome]}
+        samtools index {output.bam_ready}
+        """
+    
+rule qualimap:
+    input:
+        bam="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam"
+    resources:
+        mem_mb=4096,
+    output:
+        directory("results/{sample}/{sample}.{suffix}.{filetype}.qualimap")
+    wrapper:
+        "v7.6.0/bio/qualimap/bamqc"
