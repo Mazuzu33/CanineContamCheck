@@ -3,3 +3,12 @@ resource_files: "data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_R
 
 #Reference genome for canine
 reference_genome: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz"
+
+# Minimum threshold for percentage of reads aligned
+percent_aligned: 90
+
+# Minimum threshold for mean coverage of genome
+mean_coverage: 20
+
+# Freemix cutoff score
+freemix: 0.10

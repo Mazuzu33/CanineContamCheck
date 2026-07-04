@@ -1,3 +1,5 @@
+import pandas as pd
+
 configfile: "config/config.yaml"
 
 SAMPLES, SUFFIXES, FILETYPES = glob_wildcards("samples/{sample}.{suffix}.{filetype, bam|cram}")
@@ -6,7 +8,8 @@ rule all:
     input:
         expand("results/{sample}/{sample}.{suffix}.{filetype}.selfSM", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
         expand("results/{sample}/{sample}.{suffix}.{filetype}.Ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        # expand("results/{sample}/{sample}.{suffix}.{filetype}.qualimap", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
+        expand("results/{sample}/{sample}.{suffix}.{filetype}.qualimap", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
+        expand("results/{sample}/{sample}.{suffix}.{filetype}.csv", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
 
 rule verifybamid:
     input:
@@ -49,3 +52,53 @@ rule qualimap:
         directory("results/{sample}/{sample}.{suffix}.{filetype}.qualimap")
     wrapper:
         "v7.6.0/bio/qualimap/bamqc"
+
+rule bamcsv:
+    input:
+        genome_results="results/{sample}/{sample}.{suffix}.{filetype}.qualimap/genome_results.txt",
+        selfsm="results/{sample}/{sample}.{suffix}.{filetype}.selfSM"
+    output:
+        results="results/{sample}/{sample}.{suffix}.{filetype}.csv"
+    run:
+        warnings = []
+        # Check the percentage of reads aligned and the mean coverage
+        with open(input.genome_results, "r") as qualimap:
+            for line in qualimap:
+                if "number of mapped reads" in line:  
+                    start = line.find("(") + 1
+                    end = line.find("%")
+                    percent_aligned = float(line[start:end])
+                    if percent_aligned < config["percent_aligned"]:
+                        warnings.append("LOW PERCENT ALIGNED")
+                elif "mean coverageData" in line:
+                    start = line.find("=") + 2
+                    end = line.find("X")
+                    mean_coverage = float(line[start:end])
+                    if mean_coverage < config["mean_coverage"]:
+                        warnings.append("LOW MEAN COVERAGE")
+        # Check the verifybamid freemix score
+        with open(input.selfsm, "r") as selfsm:
+            lines = selfsm.readlines()
+            selfsm_values = lines[1].split('\t')
+            freemix = float(selfsm_values[6])
+            if freemix >= config["freemix"]:
+                warnings.append("FREEMIX CONTAMINATION")
+        # Append the warnings together to form a label
+        label = "/".join(warnings)
+        # Create a dataframe containing the bam data
+        bam_data = {
+            "Sample": [wildcards.sample],
+            "Warnings": [label]
+        }
+        # 
+        bam_df = pd.DataFrame(bam_data)
+        # Write the dataframe to a csv file
+        bam_df.to_csv(output.results, index=False)
+
+
+
+
+
+
+
+
