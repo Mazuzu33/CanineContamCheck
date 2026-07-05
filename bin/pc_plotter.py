@@ -21,5 +21,5 @@ fig = px.scatter_3d(
     color='Breed'
 )
 
-fig.show()
+fig.write_html(snakemake.output[0])
 
