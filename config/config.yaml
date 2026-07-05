@@ -1,7 +1,10 @@
-#Resource files from verifybamid
+# Csv containing samplename, samplepath
+sample_csv:  "config/samples.csv"
+
+# Resource files from verifybamid
 resource_files: "data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.filter.prune.vcf.gz"
 
-#Reference genome for canine
+# Reference genome for canine
 reference_genome: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz"
 
 # Minimum threshold for percentage of reads aligned

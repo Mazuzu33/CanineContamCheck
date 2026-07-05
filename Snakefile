@@ -2,21 +2,26 @@ import pandas as pd
 
 configfile: "config/config.yaml"
 
-SAMPLES, SUFFIXES, FILETYPES = glob_wildcards("samples/{sample}.{suffix}.{filetype, bam|cram}")
+# Read in sample csv and extract the sample names and paths
+sample_df = pd.read_csv(config["sample_csv"])
+sample_names = list(sample_df["samplename"])
+sample_dict = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
 
+# Input function to return the corresponding sample path given a sample name
+def get_sample_path(wildcards):
+    return sample_dict[wildcards.sample]
+
+# Generate sample csv files
 rule all:
     input:
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.selfSM", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.Ancestry", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.qualimap", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES),
-        expand("results/{sample}/{sample}.{suffix}.{filetype}.csv", zip, sample=SAMPLES, suffix=SUFFIXES, filetype=FILETYPES)
+        expand("results/{sample}/{sample}.csv", sample=sample_names)
 
 rule verifybamid:
     input:
-        bam="samples/{sample}.{suffix}.{filetype}"
+        bam=get_sample_path
     output:
-        selfsm="results/{sample}/{sample}.{suffix}.{filetype}.selfSM",
-        ancestry="results/{sample}/{sample}.{suffix}.{filetype}.Ancestry"
+        selfsm="results/{sample}/{sample}.selfSM",
+        ancestry="results/{sample}/{sample}.Ancestry"
     conda:
         "envs/verifybamid.yaml"
     shell:
@@ -26,43 +31,45 @@ rule verifybamid:
         --NumPC 3 \
         --BamFile {input.bam} \
         --IncludeChr "chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chr23, chr24, chr25, chr26, chr27, chr28, chr29, chr30, chr31, chr32, chr33, chr34, chr35, chr36, chr37, chr38, chr39" \
-        --Output results/{wildcards.sample}/{wildcards.sample}.{wildcards.suffix}.{wildcards.filetype}
+        --Output results/{wildcards.sample}/{wildcards.sample}
         """
 
+# Ensure coordinate sorted bam is available
 rule coordinatesortbam:
     input:
-        bam="samples/{sample}.{suffix}.{filetype}"
+        bam=get_sample_path
     output:
-        bam_ready="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam",
-        bam_ready_ind ="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam.bai"
+        bam_cs="tmp/{sample}/{sample}.cs.bam",
+        bam_cs_ind="tmp/{sample}/{sample}.cs.bam.bai"
     conda:
         "envs/samtools.yaml"
     shell:
         """
-        samtools sort {input.bam} -o {output.bam_ready} --reference {config[reference_genome]}
-        samtools index {output.bam_ready}
+        samtools sort {input.bam} -o {output.bam_cs} --reference {config[reference_genome]}
+        samtools index {output.bam_cs}
         """
     
 rule qualimap:
     input:
-        bam="tmp/{sample}/{sample}.{suffix}.{filetype}.cs.bam"
+        bam="tmp/{sample}/{sample}.cs.bam"
     resources:
         mem_mb=4096,
     output:
-        directory("results/{sample}/{sample}.{suffix}.{filetype}.qualimap")
+        directory("results/{sample}/{sample}.qualimap")
     wrapper:
         "v7.6.0/bio/qualimap/bamqc"
 
 rule bamcsv:
     input:
-        genome_results="results/{sample}/{sample}.{suffix}.{filetype}.qualimap/genome_results.txt",
-        selfsm="results/{sample}/{sample}.{suffix}.{filetype}.selfSM"
+        qualimap="results/{sample}/{sample}.qualimap",
+        selfsm="results/{sample}/{sample}.selfSM"
     output:
-        results="results/{sample}/{sample}.{suffix}.{filetype}.csv"
+        results="results/{sample}/{sample}.csv"
     run:
+        genome_results=f"{input.qualimap}/genome_results.txt"
         warnings = []
         # Check the percentage of reads aligned and the mean coverage
-        with open(input.genome_results, "r") as qualimap:
+        with open(genome_results, "r") as qualimap:
             for line in qualimap:
                 if "number of mapped reads" in line:  
                     start = line.find("(") + 1
@@ -90,7 +97,6 @@ rule bamcsv:
             "Sample": [wildcards.sample],
             "Warnings": [label]
         }
-        # 
         bam_df = pd.DataFrame(bam_data)
         # Write the dataframe to a csv file
         bam_df.to_csv(output.results, index=False)
