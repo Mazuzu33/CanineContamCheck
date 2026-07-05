@@ -1,5 +1,11 @@
 # Csv containing samplename, samplepath
-sample_csv:  "config/samples.csv"
+samples_csv:  "config/samples.csv"
+
+# Output csv detailing contaminated samples
+contam_csv: "results/contam.csv"
+
+# Output csv detailing PC coordinates of samples
+pc_csv: "results/pc.csv"
 
 # Resource files from verifybamid
 resource_files: "data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.filter.prune.vcf.gz"

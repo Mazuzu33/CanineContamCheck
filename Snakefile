@@ -3,18 +3,20 @@ import pandas as pd
 configfile: "config/config.yaml"
 
 # Read in sample csv and extract the sample names and paths
-sample_df = pd.read_csv(config["sample_csv"])
+sample_df = pd.read_csv(config["samples_csv"])
 sample_names = list(sample_df["samplename"])
-sample_dict = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
+sample_dict_paths = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
+sample_dict_breed = dict(zip(sample_df["samplename"], sample_df["breed"]))
 
 # Input function to return the corresponding sample path given a sample name
 def get_sample_path(wildcards):
-    return sample_dict[wildcards.sample]
+    return sample_dict_paths[wildcards.sample]
 
 # Generate sample csv files
 rule all:
     input:
-        expand("results/{sample}/{sample}.csv", sample=sample_names)
+        config["contam_csv"],
+        config["pc_csv"]
 
 rule verifybamid:
     input:
@@ -64,7 +66,7 @@ rule bamcsv:
         qualimap="results/{sample}/{sample}.qualimap",
         selfsm="results/{sample}/{sample}.selfSM"
     output:
-        results="results/{sample}/{sample}.csv"
+        bam_csv="results/{sample}/{sample}.csv"
     run:
         genome_results=f"{input.qualimap}/genome_results.txt"
         warnings = []
@@ -99,8 +101,44 @@ rule bamcsv:
         }
         bam_df = pd.DataFrame(bam_data)
         # Write the dataframe to a csv file
-        bam_df.to_csv(output.results, index=False)
+        bam_df.to_csv(output.bam_csv, index=False)
 
+# Aggregate all the indivdual csv's to one
+rule aggcsv:
+    input:
+        expand("results/{sample}/{sample}.csv", sample=sample_names)
+    output:
+        contam_csv=config["contam_csv"]
+    run:
+        # Read in every individual csv
+        sample_dfs = [pd.read_csv(file) for file in input]
+        # Stack the csv's together to create a new csv
+        concat_df = pd.concat(sample_dfs, ignore_index=True)
+        concat_df.to_csv(output.contam_csv, index=False)
+
+rule aggcoords:
+    input: 
+        coords=expand("results/{sample}/{sample}.Ancestry", sample=sample_names),
+    output:
+        pc_csv=config["pc_csv"]
+    run:
+        coords_data = []
+        # For each ancestry file, create a dictionary containing the name, breed, and pc coordinate data
+        for file, name in zip(input.coords, sample_names):
+            coord_df = pd.read_csv(file, sep='\t')
+            coords_data.append({
+                "Sample Name": name,
+                "Breed": sample_dict_breed[name],
+                "PC1": coord_df.loc[0, "IntendedSample"],
+                "PC2": coord_df.loc[1, "IntendedSample"],
+                "PC3": coord_df.loc[2, "IntendedSample"]
+            })
+        # Create a new dataframe from all of the dictionaries and write it to a csv file
+        coords_df = pd.DataFrame(coords_data)
+        coords_df.to_csv(output.pc_csv, index=False)
+        
+
+            
 
 
 
