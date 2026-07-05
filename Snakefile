@@ -16,7 +16,7 @@ def get_sample_path(wildcards):
 rule all:
     input:
         config["contam_csv"],
-        config["pc_csv"]
+        config["pc_plot"]
 
 rule verifybamid:
     input:
@@ -136,6 +136,15 @@ rule aggcoords:
         # Create a new dataframe from all of the dictionaries and write it to a csv file
         coords_df = pd.DataFrame(coords_data)
         coords_df.to_csv(output.pc_csv, index=False)
+
+rule pcplot:
+    input: 
+        config["pc_csv"]
+    output:
+        config["pc_plot"]
+    script:
+        "bin/pc_plotter.py"
+
         
 
             
