@@ -1,4 +1,4 @@
-# Csv containing samplename, samplepath
+# Csv containing samplename, breed, samplepath
 samples_csv:  "config/samples.csv"
 
 # Output csv detailing contaminated samples
