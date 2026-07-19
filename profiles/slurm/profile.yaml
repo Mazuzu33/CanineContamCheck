@@ -1,6 +1,6 @@
 executor: slurm
 jobs: 10
-default_resources:
+default-resources:
 # Use a default runtime of 24 hours
   runtime: 1440
 # Use a default memory of 100GB
