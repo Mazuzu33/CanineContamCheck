@@ -1,4 +1,9 @@
 executor: slurm
 jobs: 10
 default_resources:
+# Use a default runtime of 24 hours
+  runtime: 1440
+# Use a default memory of 100GB
   mem_mb: 100000
+# Use conda as the default software deployment method
+sdm: conda

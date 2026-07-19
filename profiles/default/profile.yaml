@@ -1,0 +1,4 @@
+# Use conda as the default software deployment method
+sdm: conda
+# Use all cores by default
+cores: all
