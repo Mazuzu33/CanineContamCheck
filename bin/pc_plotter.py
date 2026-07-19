@@ -25,6 +25,8 @@ new_df["Type"] = "New"
 # Join the two dataframes together
 concat_df = pd.concat([ref_df, new_df])
 
+
+
 # Create the 3d plot
 fig = px.scatter_3d(
     concat_df,

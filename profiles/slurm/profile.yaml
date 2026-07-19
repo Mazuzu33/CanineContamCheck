@@ -1,0 +1,4 @@
+executor: slurm
+jobs: 10
+default_resources:
+  mem_mb: 100000
