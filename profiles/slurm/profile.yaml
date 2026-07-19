@@ -5,5 +5,8 @@ default-resources:
   runtime: 1440
 # Use a default memory of 100GB
   mem_mb: 100000
+  # Default account and partition
+  slurm_account: fried255
+  slurm_partition: msismall
 # Use conda as the default software deployment method
 sdm: conda
