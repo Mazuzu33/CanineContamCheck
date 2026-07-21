@@ -28,7 +28,7 @@ new_df_filtered = new_df.loc[new_df["Breed"] == snakemake.wildcards.breed]
 # Join the two dataframes together
 concat_df = pd.concat([ref_df, new_df_filtered])
 
-# Create a color map identifying the specified breed points to be light green and other breeds to be light gray
+# Create a color map identifying the specified breed points to be electric blue and other breeds to be light gray
 unique_breeds = concat_df["Breed"].unique()
 color_map = {breed: ("rgba(0, 144, 239, 1.0)" if breed == snakemake.wildcards.breed else "lightgray") for breed in unique_breeds}
 
