@@ -4,24 +4,20 @@ import pandas as pd
 from pathlib import Path
 
 # Open yaml file
-with open("../config/config.yaml", "r") as file:
-        config = yaml.safe_load(file)
+with open("config/config.yaml", "r") as file:
+      config = yaml.safe_load(file)
 
-# Extract path of samples csv, depending on whether it is a relative or absolute path
-if config["samples_csv"][0] == "/":
-       samples_csv_path = config["samples_csv"]
-else:
-       samples_csv_path = Path("../" + config["samples_csv"])
+# Extract path of samples csv
+samples_csv_path = config["samples_csv"]
 
 # Check if the user provided one argument
 if len(sys.argv) > 1 and len(sys.argv) < 3:
-        # Check if the argument is a valid path
-        bam_dir_path = Path(sys.argv[1])
-        if not bam_dir_path.is_dir():
-               print("Error: the provided argument is not a valid path")
-               sys.exit(1)
-       
-        bam_files = list(bam_dir_path.glob("*.cram")) + list(bam_dir_path.glob("*.bam"))
+       # Check if the argument is a valid path
+       bam_dir_path = Path(sys.argv[1])
+       if not bam_dir_path.is_dir():
+              print("Error: the provided argument is not a valid path")
+              sys.exit(1)
+       bam_files = list(bam_dir_path.glob("*.cram")) + list(bam_dir_path.glob("*.bam"))
 else:
     print("Error: This script expects exactly one argument")
     sys.exit(1)
