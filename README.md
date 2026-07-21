@@ -1,5 +1,5 @@
 # CanineContamCheck
-CanineContamCheck is a tool used to check for signs of contamination or breed mismatches in canine genetic data. The tool consists of two pipelines. The first pipeline takes in BAM/CRAM files and checks the samples' mean coverage, percentage of reads aligned, and freemix score as calculated by VerifyBamID. It also creates a PCA plot of these samples overlaid onto a large canine reference panel, allowing for visual inspection of breed mismatches. The second pipeline takes in GVCF files and checks the samples' Ts/Tv ratio, indel amount, and CHARR/INCONSISTENT_AB_HET_RATE as calculated by sceVCF.
+CanineContamCheck is a tool used to check for signs of contamination or breed mismatches in canine genetic data. The tool consists of two pipelines. The first pipeline takes in BAM/CRAM files and checks the samples' mean coverage, percentage of reads aligned, and FREEMIX score as calculated by VerifyBamID. It also creates a PCA plot of these samples overlaid onto a large canine reference panel, allowing for visual inspection of breed mismatches. The second pipeline takes in GVCF files and checks the samples' Ts/Tv ratio, indel amount, and CHARR as well as INCONSISTENT_AB_HET_RATE as calculated by sceVCF.
 
 ## Dependencies
 - Pixi
