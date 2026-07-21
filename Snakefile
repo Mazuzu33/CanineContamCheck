@@ -132,6 +132,7 @@ rule aggcsv:
         sample_dfs = [pd.read_csv(file) for file in input]
         # Stack the csv's together to create a new csv
         concat_df = pd.concat(sample_dfs, ignore_index=True)
+        concat_df = concat_df[concat_df["Warnings"] != ""]
         concat_df.to_csv(output.contam_csv, index=False)
 
 rule aggcoords:
