@@ -1,12 +1,29 @@
 import pandas as pd
+import numpy as np
 
 configfile: "config/config.yaml"
 
-# Read in sample csv and extract the sample names and paths
+# Read in sample csv and extract the sample names, paths, and breeds
 sample_df = pd.read_csv(config["samples_csv"])
 sample_names = list(sample_df["samplename"])
 sample_dict_paths = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
 sample_dict_breed = dict(zip(sample_df["samplename"], sample_df["breed"]))
+
+# Get unique breeds from new samples
+unique_new_breeds = sample_df["breed"].unique()
+# Import tsv file containing PC coordinates from reference panel
+ref_df = pd.read_csv("data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.filter.prune.vcf.gz.V", 
+                 sep='\t', 
+                 header=None, 
+                 names=["Sample Name", "PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9", "PC10"], 
+                 usecols=range(11)
+)
+# Create a new column identifying the breed of the dog
+ref_df["Breed"] = ref_df["Sample Name"].str[0:4]
+# Get unique breeds from reference samples
+unique_ref_breeds = ref_df["Breed"].unique()
+# Get unique breeds from new samples that are present in reference samples
+unique_breeds = unique_new_breeds[np.isin(unique_new_breeds, unique_ref_breeds)]
 
 # Input function to return the corresponding sample path given a sample name
 def get_sample_path(wildcards):
@@ -16,7 +33,7 @@ def get_sample_path(wildcards):
 rule all:
     input:
         config["contam_csv"],
-        config["pc_plot"]
+        expand(config["pc_plot"] + "/pc_{breed}.html", breed=unique_breeds)
 
 rule verifybamid:
     input:
@@ -142,7 +159,7 @@ rule pcplot:
     input: 
         config["pc_csv"]
     output:
-        config["pc_plot"]
+        config["pc_plot"] + "/pc_{breed}.html"
     script:
         "bin/pc_plotter.py"
 

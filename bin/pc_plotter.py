@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 
 # Import tsv file containing PC coordinates from reference panel
 ref_df = pd.read_csv("data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.filter.prune.vcf.gz.V", 
@@ -22,10 +23,14 @@ new_df = pd.read_csv(snakemake.input[0])
 # Create a new column identifying the points as new points
 new_df["Type"] = "New"
 
+# Filter down the new samples dataframe to the only samples of the specified breed
+new_df_filtered = new_df.loc[new_df["Breed"] == snakemake.wildcards.breed]
 # Join the two dataframes together
-concat_df = pd.concat([ref_df, new_df])
+concat_df = pd.concat([ref_df, new_df_filtered])
 
-
+# Create a color map identifying the specified breed points to be light green and other breeds to be light gray
+unique_breeds = concat_df["Breed"].unique()
+color_map = {breed: ("rgba(0, 144, 239, 1.0)" if breed == snakemake.wildcards.breed else "lightgray") for breed in unique_breeds}
 
 # Create the 3d plot
 fig = px.scatter_3d(
@@ -34,20 +39,27 @@ fig = px.scatter_3d(
     y="PC2",
     z="PC3",
     color="Breed",
-    symbol="Type",
-    symbol_map={"Reference": "circle", "New": "circle"},
-    opacity=0.5
+    color_discrete_map=color_map,
+    hover_data = {
+        "Breed": True,
+        "Type": True,
+        "PC1": True,
+        "PC2": True,
+        "PC3": True
+    }
 )
+
+# Reduce marker size of points to 5
+fig.update_traces(marker_size=5)
 
 # Apply a black outline to new points
 fig.add_trace(go.Scatter3d(
-    x=new_df["PC1"],
-    y=new_df["PC2"],
-    z=new_df["PC3"],
+    x=new_df_filtered["PC1"],
+    y=new_df_filtered["PC2"],
+    z=new_df_filtered["PC3"],
     mode="markers",
     marker=dict(size=10, color="black", symbol="circle-open"),
     name="Outline",
-    showlegend=False,
     hoverinfo="skip"
 ))
 
