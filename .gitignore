@@ -1,9 +1,9 @@
-/results/
-/samples/
-.snakemake/
-/data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/
-/tmp/
-/config/samples.csv
+/BamCheck/results/
+/BamCheck/samples/
+/BamCheck/.snakemake/
+/BamCheck/data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/
+/BamCheck/tmp/
+/Bamcheck/config/samples.csv
 # pixi environments
 .pixi/*
 !.pixi/config.toml
