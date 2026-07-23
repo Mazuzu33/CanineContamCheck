@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --time=96:00:00
-#SBATCH --mem=50g
+#SBATCH --mem=32g
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=wu001474@umn.edu
 #SBATCH -p msismall
