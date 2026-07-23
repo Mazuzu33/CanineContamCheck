@@ -1,12 +1,31 @@
 executor: slurm
-jobs: 10
+jobs: 100
 default-resources:
-# Use a default runtime of 24 hours
-  runtime: 1440
-# Use a default memory of 100GB
-  mem_mb: 100000
+# Use a default runtime of 1 hour
+  runtime: 60
+# Use a default memory of 16GB
+  mem_mb: 1600
   # Default account and partition
   slurm_account: fried255
   slurm_partition: msismall
 # Use conda as the default software deployment method
+set-resources:
+  verifybamid:
+    # On average verifybamid takes around 8 hrs to run. A max runtime of 24 hours is set.
+    runtime: 1440
+    # On average, verifybamid uses around 15 GB of memory. A max memory of 75 GB is set.
+    mem_mb: 75000
+    # Specify 8 cpus to align with 8 used threads
+    cpus_per_task: 8
+  coordinatesortbam:
+  # On average, coordinatesort bam takes around _ hours to run. A max runtime of _ hours is set.
+    runtime: 
+  # On average, coordinatesort bam around _ GB of memory. A max memory of _ GB is set.
+    mem_mb:
+  qualimap:
+  # On average, coordinatesort bam takes around _ hours to run. A max runtime of _ hours is set.
+    runtime: 
+  # On average, coordinatesort bam around _ GB of memory. A max memory of _ GB is set.
+    mem_mb: 
+
 sdm: conda
