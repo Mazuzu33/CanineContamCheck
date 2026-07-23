@@ -6,6 +6,6 @@
 #SBATCH -p msismall
 #SBATCH -o /projects/standard/fried255/shared/ForMazuki/logs/slurm-%j.out
 
-cd /projects/standard/fried255/shared/ForMazuki/CanineContamCheck
+cd /projects/standard/fried255/shared/ForMazuki/CanineContamCheck/BamCheck
 pixi shell
 snakemake --workflow-profile profiles/slurm/profile.yaml
