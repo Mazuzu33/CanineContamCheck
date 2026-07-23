@@ -22,5 +22,5 @@ percent_aligned: 90
 # Minimum threshold for mean coverage of genome
 mean_coverage: 20
 
-# Freemix cutoff score
+# Maximum threshold for freemix score
 freemix: 0.10
