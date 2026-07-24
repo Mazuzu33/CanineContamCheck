@@ -19,7 +19,7 @@ ref_df = pd.read_csv("data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_
                  usecols=range(11)
 )
 # Create a new column identifying the breed of the dog
-ref_df["Breed"] = ref_df["Sample Name"].str[0:4]
+ref_df["Breed"] = ref_df["Sample Name"].str.split("#").str[0]
 # Get unique breeds from reference samples
 unique_ref_breeds = ref_df["Breed"].unique()
 # Get unique breeds from new samples that are present in reference samples
