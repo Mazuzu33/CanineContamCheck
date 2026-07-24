@@ -16,7 +16,7 @@ CanineContamCheck is designed to work only on Linux and macOS operating systems.
 
 ## BamCheck
 
-**Prepare input CSV file**
+**1. Prepare input CSV file**
 
 BamCheck expects an input CSV file with column headers samplename, breed, and samplepath. This information should be entered on a new row for each sample.
 ```
@@ -27,7 +27,7 @@ The breed should be a standardized abbreviation as specified by this document (h
 
 Alternatively, you can specify a directory containing BAM/CRAM files and automatically generate the input CSV file. Navigate to `CanineContamCheck/BamCheck`, activate the pixi environment by running `pixi shell`, and run `python prep_samples_csv.py path/to/bam/or/cram/directory`. The CSV file will be generated in the location specified by samples_csv in `CanineContamCheck/BamCheck/config/config.yaml`. Note that the BAM/CRAM files in the directory must have a format of samplename.{something else}.{bam|cram}. Additionally, the breeds of each sample will still need to be added to the CSV file.
 
-**Setup configurations**
+**2. Setup configurations**
 
 BamCheck can be configured differently based on the user's own preferences. To change default configurations, open `CanineContamCheck/BamCheck/config/config.yaml`. Paths to these settings can be provided as absolute or as relative to the BamCheck directory. 
 - samples_csv: The path to the input CSV file. Defaults to `config/samples.csv `.
@@ -40,11 +40,11 @@ BamCheck can be configured differently based on the user's own preferences. To c
 - mean_coverage: The minimum threshold for the mean coverage or depth of the genome. Defaults to 20.
 - freemix: The maximum threshold for the freemix score. The freemix score is calculated by VerifyBamID and estimates intraspecies contamination. While the threshold is normally set to 0.05 for humans, this was found to be too strict for canines. Defaults to 0.10. 
 
-**Running BamCheck**
+**3. Running BamCheck**
 
 To run BamCheck, navigate to `CanineContamCheck/BamCheck` and activate the pixi environment by running `pixi shell`. If you are running this locally, simply run `snakemake`. If you are running this on a supercomputing cluster using SLURM, run `sbatch submit_bamcheck.sh`. Note this script is configured specifically for the Friedenberg Lab at on the Minnesota Supercomputing Institute, so you will need to edit it as needed.
 
-**Interpreting results**
+**4. Interpreting results**
 
 BamCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/BamCheck/config/config.yaml`. It will also specify which thresholds each sample failed.
 - LOW PERCENT ALIGNED: Sample failed the percent_aligned threshold.
