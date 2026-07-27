@@ -43,6 +43,7 @@ rule verifybamid:
         ancestry="results/{sample}/{sample}.Ancestry"
     conda:
         "envs/verifybamid.yaml"
+    threads: 8
     shell:
         """
         verifybamid2 --SVDPrefix {config[resource_files]} \
@@ -64,9 +65,14 @@ rule coordinatesortbam:
         bam_cs_ind="tmp/{sample}/{sample}.cs.bam.bai"
     conda:
         "envs/samtools.yaml"
+    threads: 1
+    params:
+        sort_options = lambda wildcards, threads: (
+            f"-@ {threads} -m 4G" if threads > 1 else ""
+        )
     shell:
         """
-        samtools sort {input.bam} -o {output.bam_cs} --reference {config[reference_genome]}
+        samtools sort {params.sort_options} {input.bam} -o {output.bam_cs} --reference {config[reference_genome]}
         samtools index {output.bam_cs}
         """
     
