@@ -80,7 +80,8 @@ rule qualimap:
     input:
         bam="tmp/{sample}/{sample}.cs.bam"
     resources:
-        mem_mb=4096,
+        mem_mb=8000
+    threads: 1
     output:
         directory("results/{sample}/{sample}.qualimap")
     wrapper:
