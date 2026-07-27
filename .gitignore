@@ -1,8 +1,8 @@
-/BamCheck/results/
-/BamCheck/samples/
-/BamCheck/data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/
-/BamCheck/tmp/
-/Bamcheck/config/samples.csv
+results/
+samples/
+tmp/
+data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/
+samples.csv
 # Internal Snakemake files
 .snakemake/
 # pixi environments
