@@ -4,7 +4,7 @@ default-resources:
 # Use a default runtime of 1 hour
   runtime: 60
 # Use a default memory of 16GB
-  mem_mb: 1600
+  mem_mb: 16000
   # Default account and partition
   slurm_account: fried255
   slurm_partition: msismall
@@ -13,19 +13,20 @@ set-resources:
   verifybamid:
     # On average verifybamid takes around 8 hrs to run. A max runtime of 24 hours is set.
     runtime: 1440
-    # On average, verifybamid uses around 15 GB of memory. A max memory of 75 GB is set.
-    mem_mb: 75000
-    # Specify 8 cpus to align with 8 used threads
-    cpus_per_task: 8
+    # On average, verifybamid uses around 15 GB of memory. A max memory of 45 GB is set.
+    mem_mb: 45000
   coordinatesortbam:
-  # On average, coordinatesort bam takes around _ hours to run. A max runtime of _ hours is set.
-    runtime: 
-  # On average, coordinatesort bam around _ GB of memory. A max memory of _ GB is set.
-    mem_mb:
+    # On average, coordinatesortbam takes around 1 hours to run. A max runtime of 3 hours is set.
+    runtime: 180
+    # On average, coordinatesortbam around 200 GB of memory. A max memory of 400 GB is set.
+    mem_mb: 400000
+    # Specify 8 threads to increase speed
+    threads: 8
   qualimap:
-  # On average, coordinatesort bam takes around _ hours to run. A max runtime of _ hours is set.
+    # On average, qualimap takes around _ hours to run. A max runtime of _ hours is set.
     runtime: 
-  # On average, coordinatesort bam around _ GB of memory. A max memory of _ GB is set.
+    # On average, qualimap takes around _ GB of memory. A max memory of _ GB is set.
     mem_mb: 
-
+    # Specify 8 threads to increase speed
+    threads: 8
 sdm: conda
