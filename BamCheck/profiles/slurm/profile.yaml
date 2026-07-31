@@ -11,22 +11,22 @@ default-resources:
 # Use conda as the default software deployment method
 set-resources:
   verifybamid:
-    # On average verifybamid takes around 8 hrs to run. A max runtime of 24 hours is set.
-    runtime: 1440
-    # On average, verifybamid uses around 15 GB of memory. A max memory of 45 GB is set.
-    mem_mb: 45000
+    # On average verifybamid takes around 8 hrs to run. A max runtime of 36 hours is set.
+    runtime: 2160
+    # On average, verifybamid uses around 15 GB of memory. A max memory of 60 GB is set.
+    mem_mb: 60000
   coordinatesortbam:
-    # On average, coordinatesortbam takes around 1 hours to run. A max runtime of 3 hours is set.
-    runtime: 180
-    # On average, coordinatesortbam around 200 GB of memory. A max memory of 400 GB is set.
-    mem_mb: 400000
+    # On average, coordinatesortbam takes around 1 hour to run. A max runtime of 4 hours is set.
+    runtime: 240
+    # On average, coordinatesortbam around 200 GB of memory. A max memory of 500 GB is set.
+    mem_mb: 500000
     # Specify 8 threads to increase speed
     threads: 8
   qualimap:
-    # On average, qualimap takes around _ hours to run. A max runtime of _ hours is set.
-    runtime: 
-    # On average, qualimap takes around _ GB of memory. A max memory of _ GB is set.
-    mem_mb: 
+    # On average, qualimap takes around 2 hours to run. A max runtime of 8 hours is set.
+    runtime: 480
+    # On average, qualimap takes around 100 GB of memory. A max memory of 300 GB is set.
+    mem_mb: 300000
     # Specify 8 threads to increase speed
     threads: 8
 sdm: conda
