@@ -1,0 +1,12 @@
+# Csv containing samplename and samplepath
+samples_csv:  "config/samples.csv"
+
+# Output csv detailing contaminated samples
+contam_csv: "results/contam.csv"
+
+# Reference genome for canine
+reference_genome: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz"
+
+# Reference panel with AF for canine
+reference_panel: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz"
+
