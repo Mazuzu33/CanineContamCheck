@@ -1,0 +1,12 @@
+import pandas as pd
+
+configfile: "config/config.yaml"
+
+# Read in sample csv and extract the sample names and paths
+sample_df = pd.read_csv(config["samples_csv"])
+sample_names = list(sample_df["samplename"])
+sample_dict_paths = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
+
+# Input function to return the corresponding sample path given a sample name
+def get_sample_path(wildcards):
+    return sample_dict_paths[wildcards.sample]
