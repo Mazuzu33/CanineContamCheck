@@ -10,3 +10,51 @@ sample_dict_paths = dict(zip(sample_df["samplename"], sample_df["samplepath"]))
 # Input function to return the corresponding sample path given a sample name
 def get_sample_path(wildcards):
     return sample_dict_paths[wildcards.sample]
+
+rule all:
+    input:
+        expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
+        expand("results/{sample}/{sample}.bial.snps.vcf.gz", sample=sample_names)
+
+rule gvcftovcf:
+    input:
+        gvcf=get_sample_path
+    conda:
+        "envs/bcftools.yaml"
+    output:
+        vcf="tmp/{sample}/{sample}.vcf.gz"
+    shell:
+        """
+        bcftools convert --gvcf2vcf \
+        --fasta-ref {config[reference_genome]} \
+        -Ov {input.gvcf} \
+        | awk 'BEGIN {{OFS="\t"}} /^#/ {{print; next}} {{$4 = toupper($4); $5 = toupper($5); print}}' \
+        | bcftools view -AA -Oz -o {output.vcf} -
+        """
+
+rule bialsnps:
+    input:
+        vcf="tmp/{sample}/{sample}.vcf.gz"
+    conda:
+        "envs/bcftools.yaml"
+    output:
+        bialsnps_vcf="results/{sample}/{sample}.bial.snps.vcf.gz"
+    shell:
+        """
+        bcftools view -f PASS,. -m2 -M2 -v snps  -i "FORMAT/AD!='.'" -Oz -o {output.bialsnps_vcf} {input.vcf}
+        tabix -p vcf {output.bialsnps_vcf}
+        """
+
+rule bcfstats:
+    input: 
+        vcf="tmp/{sample}/{sample}.vcf.gz"
+    conda: 
+        "envs/bcftools.yaml"
+    threads: 1
+    output:
+        stats="results/{sample}/{sample}.stats.txt"
+    shell:
+        """
+        bcftools stats --threads {threads} -s - {input.vcf} > {output.stats}
+        """
+        
