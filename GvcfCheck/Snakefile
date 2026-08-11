@@ -14,7 +14,7 @@ def get_sample_path(wildcards):
 rule all:
     input:
         expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
-        expand("results/{sample}/{sample}.bial.snps.vcf.gz", sample=sample_names)
+        expand("tmp/{sample}/{sample}.bial.snps.AF.vcf.gz", sample=sample_names)
 
 rule gvcftovcf:
     input:
@@ -38,11 +38,25 @@ rule bialsnps:
     conda:
         "envs/bcftools.yaml"
     output:
-        bialsnps_vcf="results/{sample}/{sample}.bial.snps.vcf.gz"
+        snps_vcf="tmp/{sample}/{sample}.bial.snps.vcf.gz"
     shell:
         """
-        bcftools view -f PASS,. -m2 -M2 -v snps  -i "FORMAT/AD!='.'" -Oz -o {output.bialsnps_vcf} {input.vcf}
-        tabix -p vcf {output.bialsnps_vcf}
+        bcftools view -f PASS,. -m2 -M2 -v snps  -i "FORMAT/AD!='.'" -Oz -o {output.snps_vcf} {input.vcf}
+        tabix -p vcf {output.snps_vcf}
+        """
+
+rule aftag:
+    input:
+        snps_vcf="tmp/{sample}/{sample}.bial.snps.vcf.gz"
+    conda:
+        "envs/bcftools.yaml"
+    output:
+        af_vcf="tmp/{sample}/{sample}.bial.snps.AF.vcf.gz"
+    shell:
+        """
+        bcftools annotate -a {config[reference_panel]} \
+        -c INFO/AF -Oz -o {output.af_vcf} \
+        {input.snps_vcf}
         """
 
 rule bcfstats:
