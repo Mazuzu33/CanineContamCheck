@@ -10,3 +10,20 @@ reference_genome: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_R
 # Reference panel with AF for canine
 reference_panel: "data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz"
 
+# Minimum threshold for indels
+min_indels: 0
+
+# Maximum threshold for indels:
+max_indels: 1000000000
+
+# Minimum threshold for Ts/Tv ratio
+min_tstv: 0
+
+# Maximum threshold for Ts/Tv ratio
+max_tstv: 3
+
+# Maximum threshold for CHARR
+charr: 0.03
+
+# Maximum threshold for INCONSISTENT_AB_HET_RATE
+inconsistent_ab_het_rate: 0.15

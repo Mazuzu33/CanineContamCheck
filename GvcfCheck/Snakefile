@@ -14,7 +14,7 @@ def get_sample_path(wildcards):
 rule all:
     input:
         expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
-        expand("tmp/{sample}/{sample}.bial.snps.AF.vcf.gz", sample=sample_names)
+        expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
 
 rule gvcftovcf:
     input:
@@ -59,6 +59,16 @@ rule aftag:
         {input.snps_vcf}
         """
 
+rule sceVCF:
+    input:
+        af_vcf="tmp/{sample}/{sample}.bial.snps.AF.vcf.gz"
+    output:
+        scevcf_tsv="results/{sample}/{sample}.scevcf.tsv"
+    shell:
+        """
+        bin/sceVCF -o {output.scevcf_tsv} {input.af_vcf}
+        """
+
 rule bcfstats:
     input: 
         vcf="tmp/{sample}/{sample}.vcf.gz"
@@ -71,4 +81,63 @@ rule bcfstats:
         """
         bcftools stats --threads {threads} -s - {input.vcf} > {output.stats}
         """
-        
+
+rule gvcfcsv:
+    input:
+        scevcf_tsv="results/{sample}/{sample}.scevcf.tsv"
+        stats="results/{sample}/{sample}.stats.txt"
+    output:
+        gvcf_csv="results/{sample}/{sample}.contam"
+    run:
+        warnings = []
+        # Check the indels and Ts/Tv ratio
+        with open(input.stats, "r") as stats:
+            for line_num, line in enumerate(stats, start=1):
+                if line_num == 12:
+                    content = line.split("\t") 
+                    indels = int(content[3])
+                    if indels < config["min_indels"]:
+                        warnings.append("LOW INDELS")
+                    else if indels > config["max_indels"]:
+                        warnings.append("HIGH INDELS")
+                elif linenum == 36:
+                    content = line.split("\t")
+                    tstv = float(content[4])
+                    if tstv < config["min_tstv"]:
+                        warnings.append("LOW TS/TV")
+                    elif tstv > config["max_tstv"]:
+                        warnings.append("HIGH TS/TV")
+        # Check the CHARR and INCONSISTENT_AB_HET_RATE
+        with open(input.scevcf_tsv, "r") as scevcf_tsv:
+            lines = scevcf_tsv.readlines()
+            content = lines[3].split('\t')
+            charr = float(content[9])
+            inconsistent_ab_het_rate = float(content[12])
+            if charr >= config["charr"]:
+                warnings.append("CHARR CONTAMINATION")
+            if inconsistent_ab_het_rate >= config[inconsistent_ab_het_rate]:
+                warnings.append("INCONSISTENT_AB_HET_RATE CONTAMINATION")
+        # Append the warnings together to form a label
+        label = "/".join(warnings)
+        # Create a dataframe containing the gvcf data
+        gvcf_data = {
+            "Sample": [wildcards.sample],
+            "Warnings": [label]
+        }
+        gvcf_df = pd.DataFrame(bam_data)
+        # Write the dataframe to a csv file
+        gvcf_df.to_csv(output.bam_csv, index=False)
+
+# Aggregate all the indivdual csv's to one
+rule aggcsv:
+    input:
+        expand("results/{sample}/{sample}.csv", sample=sample_names)
+    output:
+        contam_csv=config["contam_csv"]
+    run:
+        # Read in every individual csv
+        sample_dfs = [pd.read_csv(file) for file in input]
+        # Stack the csv's together to create a new csv
+        concat_df = pd.concat(sample_dfs, ignore_index=True)
+        concat_df = concat_df[concat_df["Warnings"] != ""]
+        concat_df.to_csv(output.contam_csv, index=False)
