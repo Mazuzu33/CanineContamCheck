@@ -2,7 +2,7 @@
 authors = ["Mazuki <mazuki.wu@gmail.com>"]
 channels = ["conda-forge"]
 name = "GvcfCheck"
-platforms = ["linux-64","osx-arm64"]
+platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
