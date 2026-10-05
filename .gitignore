@@ -3,7 +3,7 @@ samples/
 tmp/
 # Reference genomes and panels
 **/data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/
-**/data/reference_panels/UU_Cfam_GSD_1.0_ROSY/
+**/data/reference_panel/UU_Cfam_GSD_1.0_ROSY/
 samples.csv
 # Internal Snakemake files
 .snakemake/
