@@ -8,7 +8,7 @@ CanineContamCheck is a tool used to check for signs of contamination or breed mi
 
 ## Initial Setup
 
-CanineContamCheck is designed to work only on Linux and macOS operating systems.
+CanineContamCheck is designed to work only on Linux operating systems.
 
 1. Install pixi following the installation guide (https://pixi.prefix.dev/latest/installation/)
 2. Clone the github repo
