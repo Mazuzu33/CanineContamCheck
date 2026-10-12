@@ -36,7 +36,7 @@ BamCheck can be configured differently based on the user's own preferences. To c
 - pc_plot: The path to the output directory where HTML files containg PC plots will be saved. Defaults to `results/pc_plots`.
 - resource_files: The path to the resource files generated from VerifyBamID. VerifyBamID expects 4 files that contain this path with suffixes of .bed, .mu, .UD, and .V. Refer to (https://github.com/griffan/VerifyBamID) if you wish to generate your own. Note that the resource files must be generated using the same reference genome as specified here. Defaults to `data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.filter.prune.vcf.gz`.
 - reference_genome: The path to the FASTA file containing the reference genome that samples were aligned to. Defaults to `data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz`.
-- percent_aligned: The minimum threshold for the percentage of reads that should align to the reference genome. Defaults to 90.
+- percent_aligned: The minimum threshold for the percentage of reads that should align to the reference genome. Defaults to 95.
 - mean_coverage: The minimum threshold for the mean coverage or depth of the genome. Defaults to 20.
 - freemix: The maximum threshold for the freemix score. The freemix score is calculated by VerifyBamID and estimates intraspecies contamination. While the threshold is normally set to 0.05 for humans, this was found to be too strict for canines. Defaults to 0.10. 
 
