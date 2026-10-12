@@ -16,6 +16,7 @@ rule all:
         expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
         expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
 
+# Convert gvcf to a temporary vcf
 rule gvcftovcf:
     input:
         gvcf=get_sample_path
@@ -31,7 +32,7 @@ rule gvcftovcf:
         | awk 'BEGIN {{OFS="\t"}} /^#/ {{print; next}} {{$4 = toupper($4); $5 = toupper($5); print}}' \
         | bcftools view -AA -Oz -o {output.vcf} -
         """
-
+# Filter vcf down to a temporary biallelic snps vcf
 rule bialsnps:
     input:
         vcf="tmp/{sample}/{sample}.vcf.gz"
@@ -45,6 +46,7 @@ rule bialsnps:
         tabix -p vcf {output.snps_vcf}
         """
 
+# Generate temporary biallelic snps vcf tagged with AF
 rule aftag:
     input:
         snps_vcf="tmp/{sample}/{sample}.bial.snps.vcf.gz"
@@ -59,6 +61,7 @@ rule aftag:
         {input.snps_vcf}
         """
 
+# Run sceVCF on on biallelic snps vcf tagged with AF
 rule sceVCF:
     input:
         af_vcf="tmp/{sample}/{sample}.bial.snps.AF.vcf.gz"
@@ -69,6 +72,7 @@ rule sceVCF:
         bin/sceVCF -o {output.scevcf_tsv} {input.af_vcf}
         """
 
+# Run bcftools stats on vcf
 rule bcfstats:
     input: 
         vcf="tmp/{sample}/{sample}.vcf.gz"
@@ -82,6 +86,7 @@ rule bcfstats:
         bcftools stats --threads {threads} -s - {input.vcf} > {output.stats}
         """
 
+# Generate a csv detailing contamination for each csv
 rule gvcfcsv:
     input:
         scevcf_tsv="results/{sample}/{sample}.scevcf.tsv"
@@ -128,7 +133,7 @@ rule gvcfcsv:
         # Write the dataframe to a csv file
         gvcf_df.to_csv(output.bam_csv, index=False)
 
-# Aggregate all the indivdual csv's to one
+# Aggregate all individual sample csv's into one
 rule aggcsv:
     input:
         expand("results/{sample}/{sample}.csv", sample=sample_names)
