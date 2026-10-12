@@ -29,12 +29,13 @@ unique_breeds = unique_new_breeds[np.isin(unique_new_breeds, unique_ref_breeds)]
 def get_sample_path(wildcards):
     return sample_dict_paths[wildcards.sample]
 
-# Generate sample csv files
+# Generate sample-specific csv files detailing possible contamination and pc plots for each available breed
 rule all:
     input:
         config["contam_csv"],
         expand(config["pc_plot"] + "/pc_{breed}.html", breed=unique_breeds)
 
+# Run verifybamid on each BAM/CRAM
 rule verifybamid:
     input:
         bam=get_sample_path
@@ -56,7 +57,7 @@ rule verifybamid:
         --NumThread {threads}
         """
 
-# Ensure coordinate sorted bam is available
+# Generate a temporary coordinate sorted bam
 rule coordinatesortbam:
     input:
         bam=get_sample_path
@@ -76,6 +77,7 @@ rule coordinatesortbam:
         samtools index {output.bam_cs}
         """
     
+# Run qualmap bamqc on each coordinate sorted bam
 rule qualimap:
     input:
         bam="tmp/{sample}/{sample}.cs.bam"
@@ -87,6 +89,7 @@ rule qualimap:
     wrapper:
         "v7.6.0/bio/qualimap/bamqc"
 
+# Create a csv for each sample detalining contamination
 rule bamcsv:
     input:
         qualimap="results/{sample}/{sample}.qualimap",
@@ -129,7 +132,7 @@ rule bamcsv:
         # Write the dataframe to a csv file
         bam_df.to_csv(output.bam_csv, index=False)
 
-# Aggregate all the indivdual csv's to one
+# Aggregate all individual sample csv's into one
 rule aggcsv:
     input:
         expand("results/{sample}/{sample}.csv", sample=sample_names)
@@ -143,6 +146,7 @@ rule aggcsv:
         concat_df = concat_df[concat_df["Warnings"] != ""]
         concat_df.to_csv(output.contam_csv, index=False)
 
+# Aggregate all pc coordinates together
 rule aggcoords:
     input: 
         coords=expand("results/{sample}/{sample}.Ancestry", sample=sample_names),
@@ -164,6 +168,7 @@ rule aggcoords:
         coords_df = pd.DataFrame(coords_data)
         coords_df.to_csv(output.pc_csv, index=False)
 
+# Generate pc plots for each breed
 rule pcplot:
     input: 
         config["pc_csv"]
