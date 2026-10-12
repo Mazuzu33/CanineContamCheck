@@ -41,6 +41,7 @@ fig = px.scatter_3d(
     color="Breed",
     color_discrete_map=color_map,
     hover_data = {
+        "Sample Name": True,
         "Breed": True,
         "Type": True,
         "PC1": True,
