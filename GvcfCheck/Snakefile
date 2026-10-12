@@ -89,7 +89,7 @@ rule bcfstats:
 # Generate a csv detailing contamination for each csv
 rule gvcfcsv:
     input:
-        scevcf_tsv="results/{sample}/{sample}.scevcf.tsv"
+        scevcf_tsv="results/{sample}/{sample}.scevcf.tsv",
         stats="results/{sample}/{sample}.stats.txt"
     output:
         gvcf_csv="results/{sample}/{sample}.contam"
