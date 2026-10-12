@@ -61,8 +61,8 @@ rule coordinatesortbam:
     input:
         bam=get_sample_path
     output:
-        bam_cs="tmp/{sample}/{sample}.cs.bam",
-        bam_cs_ind="tmp/{sample}/{sample}.cs.bam.bai"
+        bam_cs=temp("tmp/{sample}/{sample}.cs.bam"),
+        bam_cs_ind=temp("tmp/{sample}/{sample}.cs.bam.bai")
     conda:
         "envs/samtools.yaml"
     threads: 1
