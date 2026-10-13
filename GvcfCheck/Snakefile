@@ -13,8 +13,10 @@ def get_sample_path(wildcards):
 
 rule all:
     input:
-        expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
-        expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
+        config["contam_csv"]
+        # expand("results/{sample}/{sample}.csv", sample=sample_names)
+        # expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
+        # expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
 
 # Convert gvcf to a temporary vcf
 rule gvcftovcf:
@@ -92,21 +94,21 @@ rule gvcfcsv:
         scevcf_tsv="results/{sample}/{sample}.scevcf.tsv",
         stats="results/{sample}/{sample}.stats.txt"
     output:
-        gvcf_csv="results/{sample}/{sample}.contam"
+        gvcf_csv="results/{sample}/{sample}.csv"
     run:
         warnings = []
         # Check the indels and Ts/Tv ratio
         with open(input.stats, "r") as stats:
             for line_num, line in enumerate(stats, start=1):
-                if line_num == 12:
-                    content = line.split("\t") 
-                    indels = int(content[3])
+                if line_num == 28:
+                    content = line.split()
+                    indels = int(content[len(content) - 1])
                     if indels < config["min_indels"]:
                         warnings.append("LOW INDELS")
-                    else if indels > config["max_indels"]:
+                    elif indels > config["max_indels"]:
                         warnings.append("HIGH INDELS")
-                elif linenum == 36:
-                    content = line.split("\t")
+                elif line_num == 36:
+                    content = line.split()
                     tstv = float(content[4])
                     if tstv < config["min_tstv"]:
                         warnings.append("LOW TS/TV")
@@ -115,12 +117,12 @@ rule gvcfcsv:
         # Check the CHARR and INCONSISTENT_AB_HET_RATE
         with open(input.scevcf_tsv, "r") as scevcf_tsv:
             lines = scevcf_tsv.readlines()
-            content = lines[3].split('\t')
+            content = lines[2].split('\t')
             charr = float(content[9])
             inconsistent_ab_het_rate = float(content[12])
             if charr >= config["charr"]:
                 warnings.append("CHARR CONTAMINATION")
-            if inconsistent_ab_het_rate >= config[inconsistent_ab_het_rate]:
+            if inconsistent_ab_het_rate >= config["inconsistent_ab_het_rate"]:
                 warnings.append("INCONSISTENT_AB_HET_RATE CONTAMINATION")
         # Append the warnings together to form a label
         label = "/".join(warnings)
@@ -129,9 +131,9 @@ rule gvcfcsv:
             "Sample": [wildcards.sample],
             "Warnings": [label]
         }
-        gvcf_df = pd.DataFrame(bam_data)
+        gvcf_df = pd.DataFrame(gvcf_data)
         # Write the dataframe to a csv file
-        gvcf_df.to_csv(output.bam_csv, index=False)
+        gvcf_df.to_csv(output.gvcf_csv, index=False)
 
 # Aggregate all individual sample csv's into one
 rule aggcsv:
