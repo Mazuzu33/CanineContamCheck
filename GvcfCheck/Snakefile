@@ -14,9 +14,6 @@ def get_sample_path(wildcards):
 rule all:
     input:
         config["contam_csv"]
-        # expand("results/{sample}/{sample}.csv", sample=sample_names)
-        # expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
-        # expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
 
 # Convert gvcf to a temporary vcf
 rule gvcftovcf:
