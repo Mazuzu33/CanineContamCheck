@@ -1,6 +1,6 @@
 [workspace]
 authors = ["Mazuki <mazuki.wu@gmail.com>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "bioconda"]
 name = "GvcfCheck"
 platforms = ["linux-64"]
 version = "0.1.0"
@@ -9,3 +9,5 @@ version = "0.1.0"
 
 [dependencies]
 conda = ">=26.5.3,<27"
+snakemake = ">=9.27.0,<10"
+snakemake-executor-plugin-slurm = ">=2.8.0,<3"
