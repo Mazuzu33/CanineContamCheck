@@ -10,7 +10,7 @@ default-resources:
   slurm_partition: msismall
 set-resources:
   verifybamid:
-    # On average verifybamid takes around 8 hrs to run. A max runtime of 36 hours is set.
+    # On average verifybamid takes around 8 hrs to run. A max runtime of 32 hours is set.
     runtime: 2160
     # On average, verifybamid uses around 15 GB of memory. A max memory of 60 GB is set.
     mem_mb: 60000
