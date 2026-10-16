@@ -8,7 +8,6 @@ default-resources:
   # Default account and partition
   slurm_account: fried255
   slurm_partition: msismall
-# Use conda as the default software deployment method
 set-resources:
   verifybamid:
     # On average verifybamid takes around 8 hrs to run. A max runtime of 36 hours is set.
@@ -29,4 +28,5 @@ set-resources:
     mem_mb: 300000
     # Specify 8 threads to increase speed
     threads: 8
+# Use conda as the default software deployment method
 sdm: conda
