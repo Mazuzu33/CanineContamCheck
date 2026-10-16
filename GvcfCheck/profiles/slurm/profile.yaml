@@ -1,3 +1,35 @@
 executor: slurm
 jobs: 100
+default-resources:
+# Use a default runtime of 1 hour
+  runtime: 60
+# Use a default memory of 16GB
+  mem_mb: 16000
+  # Default account and partition
+  slurm_account: fried255
+  slurm_partition: msismall
+set-resources:
+  gvcftovcf:
+    # On average, gvcftovcf takes around 1 hour and 30 minutes to run. A max runtime of 360 minutes is set.
+    runtime: 360
+    # On average, gvcftovcf takes around 25GB of memory. A max memory of 100GB memory is set.
+    mem_mb: 100000
+  bial-snps:
+    # On average, bial-snps takes around 20 minutes. A max runtime of 80 minutes is set.
+    runtime: 80
+    # On average, bial-snps takes around 10GB of memory. A max memory of 40GB is set.
+    mem_mb: 40000
+  aftag:
+    # On average, aftag takes around 2 hours and 30 minutes to run. A max runtime of 7 hours and 30 minutes is set.
+    runtime: 450
+    # On average, aftag takes around 16GB of memory. A max memory of 48GB is set.
+    mem_mb: 48000
+  bcfstats:
+    # On average, bcfstats takes around 30 minutes to run. A max runtime of 2 hours is set.
+    runtime: 120
+    # On average, bcfstats takes around 10GB of memory. A max memory of 40GB is set.
+    mem_mb: 40000
+    # Specify 8 threads to increase speed
+    threads: 8
+# Use conda as the default software deployment method
 sdm: conda
