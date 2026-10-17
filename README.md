@@ -25,7 +25,7 @@ SampleA,dobp,/path/to/bam/or/cram
 ```
 The breed should be a standardized abbreviation as specified by this document (https://docs.google.com/spreadsheets/d/1hOFzJQtt-7muhVQqF6XZjY-MHX9g5OzZaSThv7SWPqM/edit?gid=0#gid=0). Note that the path to the BAM or CRAM file can either be absolute or relative to the BamCheck directory.
 
-Alternatively, you can specify a directory containing BAM/CRAM files and automatically generate the input CSV file. Navigate to `CanineContamCheck/BamCheck`, activate the pixi environment by running `pixi shell`, and run `python prep_samples_csv.py path/to/bam/or/cram/directory`. The CSV file will be generated in the location specified by samples_csv in `CanineContamCheck/BamCheck/config/config.yaml`. Note that the BAM/CRAM files in the directory must have a format of samplename.{something else}.{bam|cram}. Additionally, the breeds of each sample will still need to be added to the CSV file.
+Alternatively, you can specify a directory containing BAM/CRAM files and automatically generate the input CSV file. Navigate to `CanineContamCheck/BamCheck`, activate the pixi environment by running `pixi shell`, and run `python3 prep_samples_csv.py path/to/bam/or/cram/directory`. The CSV file will be generated in the location specified by samples_csv in `CanineContamCheck/BamCheck/config/config.yaml`. Note that the BAM/CRAM files in the directory must have a format of samplename.{something else}.{bam|cram}. Additionally, the breeds of each sample will still need to be added to the CSV file.
 
 **2. Setup configurations**
 
@@ -53,7 +53,31 @@ BamCheck's main output is the CSV file specified by contam_csv, which will list 
 
 BamCheck's secondary output are the PCA plots located in the directory specified by pc_csv. A PCA plot will be generated for each unique breed in the input CSV file, as long as the breed is also present in the reference panel. The output HTML file will be named pc_{breed-abbreviation}.html. By opening this file in a web browser, you can manually identify breed mismatches. Blue dots correspond to the breed in question, whereas gray dots correspond to all other breeds. A black outline around a blue dot specifies that it came from a sample in the input CSV file. If such a dot is far enough away from all other blue dots, than it can be tenatively concluded that the sample's breed is incorrect.
 
+## GvcfCheck
 
+**1. Prepare input CSV file**
 
+GvcfCheck expects an input CSV file with column headers samplename and samplepath. This information should be entered on a new row for each sample.
+```
+samplename,samplepath
+SampleA,/path/to/gvcf
+```
+Note that the path to the GVCF file can either be absolute or relative to the GvcfCheck directory.
+
+Alternatively, you can specify a directory containing GVCF files and automatically generate the input CSV file. Navigate to `CanineContamCheck/GvcfCheck`, activate the pixi environment by running `pixi shell`, and run `python3 prep_samples_csv.py path/to/gvcf/directory`. The CSV file will be generated in the location specified by samples_csv in `CanineContamCheck/GvcfCheck/config/config.yaml`. Note that the GVCF files in the directory must have a format of samplename.{something else}.g.vcf.gz.
+
+**2. Setup configurations**
+
+GvcfCheck can be configured differently based on the user's own preferences. To change default configurations, open `CanineContamCheck/GvcfCheck/config/config.yaml`. Paths to these settings can be provided as absolute or as relative to the GvcfCheck directory. 
+- samples_csv: The path to the input CSV file. Defaults to `config/samples.csv `.
+- contam_csv: The path to the output CSV file containing contaminated samples and their warnings. Defaults to `results/contam.csv`.
+- reference_genome: The path to the FASTA file containing the reference genome that samples were aligned to. Defaults to `data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz`.
+- reference_panel: The path to a VCF file containing a large reference panel of canines that can be used to annotate AF. Defaults to `data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz`.
+- min_indels: The minimum threshold for indels. Defaults to
+- max_indels: The maximum threshold for indels. Defaults to
+- min_tstv: The minimum threshold for ts/tv ratio. Defaults to
+- max_tstv: The maximum threshold for ts/tv ratio. Defaults to
+- charr: The maximum threshold for CHARR. CHARR (Contamination from Homozygous Alternate Reference Reads) is calculated by sceVCF and estimates intraspecies contamination. Defaults to 0.03.
+- inconsistent_ab_het_rate: 
 
 
