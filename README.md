@@ -1,6 +1,6 @@
 # CanineContamCheck
 
-CanineContamCheck is a tool used to check for signs of contamination or breed mismatches in canine genetic data. The tool consists of two pipelines. The first pipeline, BamCheck, takes in BAM/CRAM files and checks the samples' mean coverage, percentage of reads aligned, and freemix score. It also creates a principal component analysis (PCA) plot of these samples overlaid onto a large canine reference panel containing 4461 samples, allowing for visual inspection of breed mismatches. The second pipeline, GvcfCheck, takes in GVCF files and checks the samples' Ts/Tv ratio, indel amount, charr, and inconsistent_ab_het_rate.
+CanineContamCheck is a tool used to check for signs of contamination or breed mismatches in canine genetic data. The tool consists of two pipelines. The first pipeline, BamCheck, takes in BAM/CRAM files and checks the samples' mean coverage, percentage of reads aligned, and freemix score. It also creates a principal component analysis (PCA) plot of these samples overlaid onto a large canine reference panel containing 4461 samples, allowing for visual inspection of breed mismatches. The second pipeline, GvcfCheck, takes in GVCF files and checks the samples' Ts/Tv ratio, indel amount, CHARR, and inconsistent_ab_het_rate.
 
 ## Dependencies
 
@@ -42,7 +42,7 @@ BamCheck can be configured differently based on the user's own preferences. To c
 
 **3. Running BamCheck**
 
-To run BamCheck, navigate to `CanineContamCheck/BamCheck` and activate the pixi environment by running `pixi shell`. If you are running this locally, simply run `snakemake`. If you are running this on a supercomputing cluster using SLURM, run `sbatch submit_bamcheck.sh`. Note this script is configured specifically for the Friedenberg Lab at on the Minnesota Supercomputing Institute, so you will need to edit it as needed.
+To run BamCheck, navigate to `CanineContamCheck/BamCheck`. If you are running this locally, activate the pixi environment by running `pixi shell` and then run `snakemake`. If you are running this on a supercomputing cluster using SLURM, run `sbatch submit_bamcheck.sh`. Note this script is configured specifically for the Friedenberg Lab at on the Minnesota Supercomputing Institute, so you will need to edit it as needed.
 
 **4. Interpreting results**
 
@@ -77,7 +77,19 @@ GvcfCheck can be configured differently based on the user's own preferences. To 
 - max_indels: The maximum threshold for indels. Defaults to
 - min_tstv: The minimum threshold for ts/tv ratio. Defaults to
 - max_tstv: The maximum threshold for ts/tv ratio. Defaults to
-- charr: The maximum threshold for CHARR. CHARR (Contamination from Homozygous Alternate Reference Reads) is calculated by sceVCF and estimates intraspecies contamination. Defaults to 0.03.
-- inconsistent_ab_het_rate: 
+- charr: The maximum threshold for CHARR (Contamination from Homozygous Alternate Reference Reads). CHARR is calculated by sceVCF and estimates intraspecies contamination. Defaults to 0.03.
+- inconsistent_ab_het_rate: The maximum threshold for inconsistent allelic balance heterozygous rate. This statistic is calculted by sceVCF and estimates intraspecies contamination. Defaults to 0.15.
 
+**3. Running GvcfCheck**
 
+To run GvcfCheck, navigate to `CanineContamCheck/GvcfCheck`. If you are running this locally, activate the pixi environment by running `pixi shell` and then run `snakemake`. If you are running this on a supercomputing cluster using SLURM, run `sbatch submit_gvcfcheck.sh`. Note this script is configured specifically for the Friedenberg Lab at on the Minnesota Supercomputing Institute, so you will need to edit it as needed.
+
+**4. Interpreting results**
+
+GvcfCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/GvcfCheck/config/config.yaml`. It will also specify which thresholds each sample failed.
+- LOW INDELS: Sample failed the min_indels threshold.
+- HIGH INDELS: Sample failed the max_indels threshold.
+- LOW TS/TV: Sample failed the min_tstv threshold.
+- HIGH TS/TV: Sample failed the max_tstv threshold.
+- CHARR CONTAMINATION: Sample failed the charr threshold.
+- INCONSISTENT_AB_HET_RATE CONTAMINATION: Sample failed the inconsistent_ab_het_rate threshold.
