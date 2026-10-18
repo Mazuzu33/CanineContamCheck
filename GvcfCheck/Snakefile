@@ -22,7 +22,7 @@ rule gvcftovcf:
     conda:
         "envs/bcftools.yaml"
     output:
-        vcf="tmp/{sample}/{sample}.vcf.gz"
+        vcf=temp("tmp/{sample}/{sample}.vcf.gz")
     shell:
         """
         bcftools convert --gvcf2vcf \
@@ -38,7 +38,7 @@ rule bialsnps:
     conda:
         "envs/bcftools.yaml"
     output:
-        snps_vcf="tmp/{sample}/{sample}.bial.snps.vcf.gz"
+        snps_vcf=temp("tmp/{sample}/{sample}.bial.snps.vcf.gz")
     shell:
         """
         bcftools view -f PASS,. -m2 -M2 -v snps  -i "FORMAT/AD!='.'" -Oz -o {output.snps_vcf} {input.vcf}
@@ -52,7 +52,7 @@ rule aftag:
     conda:
         "envs/bcftools.yaml"
     output:
-        af_vcf="tmp/{sample}/{sample}.bial.snps.AF.vcf.gz"
+        af_vcf=temp("tmp/{sample}/{sample}.bial.snps.AF.vcf.gz")
     shell:
         """
         bcftools annotate -a {config[reference_panel]} \
