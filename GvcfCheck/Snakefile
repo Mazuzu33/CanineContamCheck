@@ -96,17 +96,17 @@ rule gvcfcsv:
         warnings = []
         # Check the indels and Ts/Tv ratio
         with open(input.stats, "r") as stats:
-            for line_num, line in enumerate(stats, start=1):
-                if line_num == 28:
+            for line in stats:
+                if line.startswith("PSC"):
                     content = line.split()
-                    indels = int(content[len(content) - 1])
+                    indels = int(content[8])
                     if indels < config["min_indels"]:
                         warnings.append("LOW INDELS")
                     elif indels > config["max_indels"]:
                         warnings.append("HIGH INDELS")
-                elif line_num == 36:
-                    content = line.split()
-                    tstv = float(content[4])
+                    ts = float(content[6])
+                    tv = float(content[7])
+                    tstv = ts/tv
                     if tstv < config["min_tstv"]:
                         warnings.append("LOW TS/TV")
                     elif tstv > config["max_tstv"]:
