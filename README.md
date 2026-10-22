@@ -73,10 +73,10 @@ GvcfCheck can be configured differently based on the user's own preferences. To 
 - contam_csv: The path to the output CSV file containing contaminated samples and their warnings. Defaults to `results/contam.csv`.
 - reference_genome: The path to the FASTA file containing the reference genome that samples were aligned to. Defaults to `data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz`.
 - reference_panel: The path to a VCF file containing a large reference panel of canines that can be used to annotate AF. Defaults to `data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz`.
-- min_indels: The minimum threshold for indels. Defaults to 736147. This was the minimum number of indels for the reference panel.
-- max_indels: The maximum threshold for indels. Defaults to 4438742. This was the maximum number of indels for the reference panel.
-- min_tstv: The minimum threshold for ts/tv ratio. Defaults to 1.51. This was the minimum ts/tv ratio for the reference panel.
-- max_tstv: The maximum threshold for ts/tv ratio. Defaults to 2.18. This was the maximum ts/tv ratio for the reference panel.
+- min_indels: The minimum threshold for indels. Defaults to 1240778. This was the the mean number of indels minus three standard deviations for the reference panel.
+- max_indels: The maximum threshold for indels. Defaults to 2476461. This was the mean number of indels plus three standard deviations for the reference panel.
+- min_tstv: The minimum threshold for ts/tv ratio. Defaults to 1.929. This was the mean ts/tv ratio minus three standard deviations for the reference panel.
+- max_tstv: The maximum threshold for ts/tv ratio. Defaults to 2.104. This was the mean ts/tv ratio plus three standard deviations for the reference panel.
 - charr: The maximum threshold for CHARR (Contamination from Homozygous Alternate Reference Reads). CHARR is calculated by sceVCF and estimates intraspecies contamination. Defaults to 0.03.
 - inconsistent_ab_het_rate: The maximum threshold for inconsistent allelic balance heterozygous rate. This statistic is calculted by sceVCF and estimates intraspecies contamination. Defaults to 0.15.
 

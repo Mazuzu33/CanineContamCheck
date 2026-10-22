@@ -11,16 +11,16 @@ reference_genome: "data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_R
 reference_panel: "data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz"
 
 # Minimum threshold for indels
-min_indels: 736146
+min_indels: 1240778
 
 # Maximum threshold for indels:
-max_indels: 4438742
+max_indels: 2476461
 
 # Minimum threshold for Ts/Tv ratio
-min_tstv: 1.51
+min_tstv: 1.929
 
 # Maximum threshold for Ts/Tv ratio
-max_tstv: 2.18
+max_tstv: 2.104
 
 # Maximum threshold for CHARR
 charr: 0.03
