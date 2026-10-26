@@ -15,8 +15,8 @@ set-resources:
     # On average, verifybamid uses around 15 GB of memory. A max memory of 60 GB is set.
     mem_mb: 60000
   coordinatesortbam:
-    # On average, coordinatesortbam takes around 1 hour to run. A max runtime of 4 hours is set.
-    runtime: 240
+    # On average, coordinatesortbam takes around 1 hour to run. A max runtime of 8 hours is set.
+    runtime: 480
     # On average, coordinatesortbam around 200 GB of memory. A max memory of 500 GB is set.
     mem_mb: 500000
     # Specify 8 threads to increase speed
