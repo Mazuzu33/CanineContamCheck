@@ -128,9 +128,9 @@ rule statscsv:
             "CHARR": charr_list,
             "INCONSISTENT_AB_HET_RATE": inconsistent_ab_het_rate_list
         }
-        vcfs_df = pd.DataFrame(vcfs_stats)
+        stats_df = pd.DataFrame(vcfs_stats)
         # Write the dataframe to a csv file
-        vcfs_df.to_csv(output.stats_csv, index=False)
+        stats_df.to_csv(output.stats_csv, index=False)
 
 # Function to assign warnings for each sample row
 def assign_warnings(row):
@@ -147,7 +147,7 @@ def assign_warnings(row):
                 warnings.append("CHARR CONTAMINATION")
             if row["INCONSISTENT_AB_HET_RATE"] >= config["inconsistent_ab_het_rate"]:
                 warnings.append("INCONSISTENT_AB_HET_RATE CONTAMINATION")       
-            return ",".join(warnings)
+            return "/".join(warnings)
 
 # Generate a csv detailing all contaminated samples and the reason why
 rule contamcsv:
