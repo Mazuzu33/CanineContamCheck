@@ -17,7 +17,7 @@ min_indels: 1240778
 max_indels: 2476461
 
 # Minimum threshold for Ts/Tv ratio
-min_tstv: 1.929
+min_tstv: 1.729
 
 # Maximum threshold for Ts/Tv ratio
 max_tstv: 2.104

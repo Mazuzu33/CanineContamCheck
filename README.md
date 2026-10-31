@@ -75,7 +75,7 @@ GvcfCheck can be configured differently based on the user's own preferences. To 
 - reference_panel: The path to a VCF file containing a large reference panel of canines that can be used to annotate AF. Defaults to `data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz`.
 - min_indels: The minimum threshold for indels. Defaults to 1240778. This was the the mean number of indels minus three standard deviations for the reference panel.
 - max_indels: The maximum threshold for indels. Defaults to 2476461. This was the mean number of indels plus three standard deviations for the reference panel.
-- min_tstv: The minimum threshold for ts/tv ratio. Defaults to 1.929. This was the mean ts/tv ratio minus three standard deviations for the reference panel.
+- min_tstv: The minimum threshold for ts/tv ratio. Defaults to 1.729. This was the mean ts/tv ratio minus three standard deviations for the reference panel and minus 0.2. 0.2 was subtracted because the gvcf to vcf conversion process was found to lower the ts/tv ratio by about 0.2 compared to joint genotyping.
 - max_tstv: The maximum threshold for ts/tv ratio. Defaults to 2.104. This was the mean ts/tv ratio plus three standard deviations for the reference panel.
 - charr: The maximum threshold for CHARR (Contamination from Homozygous Alternate Reference Reads). CHARR is calculated by sceVCF and estimates intraspecies contamination. Defaults to 0.03.
 - inconsistent_ab_het_rate: The maximum threshold for inconsistent allelic balance heterozygous rate. This statistic is calculted by sceVCF and estimates intraspecies contamination. Defaults to 0.15.
