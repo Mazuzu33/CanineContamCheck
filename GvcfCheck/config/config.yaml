@@ -1,6 +1,9 @@
 # Csv containing samplename and samplepath
 samples_csv:  "config/samples.csv"
 
+# Output csv detailing relevant samples statistics
+stats_csv: "results/stats.csv"
+
 # Output csv detailing contaminated samples
 contam_csv: "results/contam.csv"
 

@@ -85,63 +85,84 @@ rule bcfstats:
         bcftools stats --threads {threads} -s - {input.vcf} > {output.stats}
         """
 
-# Generate a csv detailing contamination for each csv
-rule gvcfcsv:
+# Generate a csv detailing all relevant statistics for all vcfs
+rule statscsv:
     input:
-        scevcf_tsv="results/{sample}/{sample}.scevcf.tsv",
-        stats="results/{sample}/{sample}.stats.txt"
+        stats_txts = expand("results/{sample}/{sample}.stats.txt", sample=sample_names),
+        scevcf_tsvs = expand("results/{sample}/{sample}.scevcf.tsv", sample=sample_names)
     output:
-        gvcf_csv="results/{sample}/{sample}.csv"
+        stats_csv=config["stats_csv"]
     run:
-        warnings = []
-        # Check the indels and Ts/Tv ratio
-        with open(input.stats, "r") as stats:
-            for line in stats:
-                if line.startswith("PSC"):
-                    content = line.split()
-                    indels = int(content[8])
-                    if indels < config["min_indels"]:
-                        warnings.append("LOW INDELS")
-                    elif indels > config["max_indels"]:
-                        warnings.append("HIGH INDELS")
-                    ts = float(content[6])
-                    tv = float(content[7])
-                    tstv = ts/tv
-                    if tstv < config["min_tstv"]:
-                        warnings.append("LOW TS/TV")
-                    elif tstv > config["max_tstv"]:
-                        warnings.append("HIGH TS/TV")
-        # Check the CHARR and INCONSISTENT_AB_HET_RATE
-        with open(input.scevcf_tsv, "r") as scevcf_tsv:
-            lines = scevcf_tsv.readlines()
-            content = lines[2].split('\t')
-            charr = float(content[9])
-            inconsistent_ab_het_rate = float(content[12])
-            if charr >= config["charr"]:
-                warnings.append("CHARR CONTAMINATION")
-            if inconsistent_ab_het_rate >= config["inconsistent_ab_het_rate"]:
-                warnings.append("INCONSISTENT_AB_HET_RATE CONTAMINATION")
-        # Append the warnings together to form a label
-        label = "/".join(warnings)
-        # Create a dataframe containing the gvcf data
-        gvcf_data = {
-            "Sample": [wildcards.sample],
-            "Warnings": [label]
+        samples_list = []
+        indels_list = []
+        tstv_list = []
+        charr_list = []
+        inconsistent_ab_het_rate_list = []
+        for sample_name, stats_txt, scevcf_tsv in zip(sample_names, input.stats_txts, input.scevcf_tsvs):
+            # Grab the sample name
+            samples_list.append(sample_name)
+            # Grab the indels and Ts/Tv ratio
+            with open(stats_txt, "r") as stats:
+                for line in stats:
+                    if line.startswith("PSC"):
+                        content = line.split()
+                        indels = int(content[8])
+                        indels_list.append(indels)
+                        ts = float(content[6])
+                        tv = float(content[7])
+                        tstv = ts/tv
+                        tstv_list.append(tstv)
+            # Grab the CHARR and INCONSISTENT_AB_HET_RATE
+            with open(scevcf_tsv, "r") as scevcf:
+                lines = scevcf.readlines()
+                content = lines[2].split('\t')
+                charr = float(content[9])
+                charr_list.append(charr)
+                inconsistent_ab_het_rate = float(content[12])
+                inconsistent_ab_het_rate_list.append(inconsistent_ab_het_rate)
+        # Create a dataframe containing each vcf's statistics
+        vcfs_stats = {
+            "Sample": samples_list,
+            "Indels": indels_list,
+            "Ts/tv": tstv_list,
+            "CHARR": charr_list,
+            "INCONSISTENT_AB_HET_RATE": inconsistent_ab_het_rate_list
         }
-        gvcf_df = pd.DataFrame(gvcf_data)
+        vcfs_df = pd.DataFrame(vcfs_stats)
         # Write the dataframe to a csv file
-        gvcf_df.to_csv(output.gvcf_csv, index=False)
+        vcfs_df.to_csv(output.stats_csv, index=False)
 
-# Aggregate all individual sample csv's into one
-rule aggcsv:
+# Function to assign warnings for each sample row
+def assign_warnings(row):
+            warnings = []
+            if row["Indels"] < config["min_indels"]:
+                warnings.append("LOW INDELS")
+            elif row["Indels"] > config["max_indels"]:
+                warnings.append("HIGH INDELS")
+            if row["Ts/tv"] < config["min_tstv"]:
+                warnings.append("LOW TS/TV")
+            elif row["Ts/tv"] > config["max_tstv"]:
+                warnings.append("HIGH TS/TV")
+            if row["CHARR"] >= config["charr"]:
+                warnings.append("CHARR CONTAMINATION")
+            if row["INCONSISTENT_AB_HET_RATE"] >= config["inconsistent_ab_het_rate"]:
+                warnings.append("INCONSISTENT_AB_HET_RATE CONTAMINATION")       
+            return ",".join(warnings)
+
+# Generate a csv detailing all contaminated samples and the reason why
+rule contamcsv:
     input:
-        expand("results/{sample}/{sample}.csv", sample=sample_names)
+        stats_csv=config["stats_csv"]
     output:
         contam_csv=config["contam_csv"]
     run:
-        # Read in every individual csv
-        sample_dfs = [pd.read_csv(file) for file in input]
-        # Stack the csv's together to create a new csv
-        concat_df = pd.concat(sample_dfs, ignore_index=True)
-        concat_df = concat_df[concat_df["Warnings"].notna()]
-        concat_df.to_csv(output.contam_csv, index=False)
+        # Read in stats csv
+        warnings_df = pd.read_csv(input.stats_csv)
+        # Generate warnings for each sample row
+        warnings_df["Warnings"] = warnings_df.apply(assign_warnings, axis=1)
+        # Get rid of any rows with no warnings
+        warnings_df = warnings_df[warnings_df["Warnings"] != ""]
+        # Get rid of columns other than Sample and Warnings
+        warnings_df = warnings_df[["Sample","Warnings"]]
+        # Write the dataframe to a csv file
+        warnings_df.to_csv(output.contam_csv, index=False)
