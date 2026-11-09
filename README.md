@@ -31,6 +31,7 @@ Alternatively, you can specify a directory containing BAM/CRAM files and automat
 
 BamCheck can be configured differently based on the user's own preferences. To change default configurations, open `CanineContamCheck/BamCheck/config/config.yaml`. Paths to these settings can be provided as absolute or as relative to the BamCheck directory. 
 - samples_csv: The path to the input CSV file. Defaults to `config/samples.csv `.
+- stats_csv: The path to the output CSV file containing samples and their relevant statistics. Defaults to `results/stats.csv`.
 - contam_csv: The path to the output CSV file containing contaminated samples and their warnings. Defaults to `results/contam.csv`.
 - pc_csv: The path to the output CSV file containing samples and their PC coordinates. Defaults to `results/pc.csv`.
 - pc_plot: The path to the output directory where HTML files containg PC plots will be saved. Defaults to `results/pc_plots`.
@@ -46,7 +47,7 @@ To run BamCheck, navigate to `CanineContamCheck/BamCheck`. If you are running th
 
 **4. Interpreting results**
 
-BamCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/BamCheck/config/config.yaml`. It will also specify which thresholds each sample failed.
+BamCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/BamCheck/config/config.yaml`. It will also specify which thresholds each sample failed. If you wish to check what the relevant statistics were for each sample, you can look at the CSV file specified by stats_csv.
 - LOW PERCENT ALIGNED: Sample failed the percent_aligned threshold.
 - LOW MEAN COVERAGE: Sample failed the mean_coverage threshold.
 - FREEMIX CONTAMINATION: Sample failed the freemix threshold.
@@ -70,6 +71,7 @@ Alternatively, you can specify a directory containing GVCF files and automatical
 
 GvcfCheck can be configured differently based on the user's own preferences. To change default configurations, open `CanineContamCheck/GvcfCheck/config/config.yaml`. Paths to these settings can be provided as absolute or as relative to the GvcfCheck directory. 
 - samples_csv: The path to the input CSV file. Defaults to `config/samples.csv `.
+- stats_csv: The path to the output CSV file containing samples and their relevant statistics. Defaults to `results/stats.csv`.
 - contam_csv: The path to the output CSV file containing contaminated samples and their warnings. Defaults to `results/contam.csv`.
 - reference_genome: The path to the FASTA file containing the reference genome that samples were aligned to. Defaults to `data/reference_genomes/UU_Cfam_GSD_1.0_ROSY/UU_Cfam_GSD_1.0_ROSY.fa.gz`.
 - reference_panel: The path to a VCF file containing a large reference panel of canines that can be used to annotate AF. Defaults to `data/reference_panels/UU_Cfam_GSD_1.0_ROSY/dog_wgs.n3973.UU_Cfam_GSD_1.0_ROSY.20251223.snps.phased.AF.vcf.gz`.
@@ -86,7 +88,7 @@ To run GvcfCheck, navigate to `CanineContamCheck/GvcfCheck`. If you are running 
 
 **4. Interpreting results**
 
-GvcfCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/GvcfCheck/config/config.yaml`. It will also specify which thresholds each sample failed.
+GvcfCheck's main output is the CSV file specified by contam_csv, which will list any samples that failed the thresholds listed in `CanineContamCheck/GvcfCheck/config/config.yaml`. It will also specify which thresholds each sample failed. If you wish to check what the relevant statistics were for each sample, you can look at the CSV file specified by stats_csv.
 - LOW INDELS: Sample failed the min_indels threshold.
 - HIGH INDELS: Sample failed the max_indels threshold.
 - LOW TS/TV: Sample failed the min_tstv threshold.

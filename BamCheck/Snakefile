@@ -89,62 +89,79 @@ rule qualimap:
     wrapper:
         "v7.6.0/bio/qualimap/bamqc"
 
-# Create a csv for each sample detalining contamination
-rule bamcsv:
+# Generate a csv detailing all relevant statistics for all bams
+rule statscsv:
     input:
-        qualimap="results/{sample}/{sample}.qualimap",
-        selfsm="results/{sample}/{sample}.selfSM"
+        qualimap_dirs = expand("results/{sample}/{sample}.qualimap", sample=sample_names),
+        selfsm_txts = expand("results/{sample}/{sample}.selfSM", sample=sample_names)
     output:
-        bam_csv="results/{sample}/{sample}.csv"
+        stats_csv=config["stats_csv"]
     run:
-        genome_results=f"{input.qualimap}/genome_results.txt"
-        warnings = []
-        # Check the percentage of reads aligned and the mean coverage
-        with open(genome_results, "r") as qualimap:
-            for line in qualimap:
-                if "number of mapped reads" in line:  
-                    start = line.find("(") + 1
-                    end = line.find("%")
-                    percent_aligned = float(line[start:end])
-                    if percent_aligned < config["percent_aligned"]:
-                        warnings.append("LOW PERCENT ALIGNED")
-                elif "mean coverageData" in line:
-                    start = line.find("=") + 2
-                    end = line.find("X")
-                    mean_coverage = float(line[start:end])
-                    if mean_coverage < config["mean_coverage"]:
-                        warnings.append("LOW MEAN COVERAGE")
-        # Check the verifybamid freemix score
-        with open(input.selfsm, "r") as selfsm:
-            lines = selfsm.readlines()
-            selfsm_values = lines[1].split('\t')
-            freemix = float(selfsm_values[6])
-            if freemix >= config["freemix"]:
-                warnings.append("FREEMIX CONTAMINATION")
-        # Append the warnings together to form a label
-        label = "/".join(warnings)
-        # Create a dataframe containing the bam data
-        bam_data = {
-            "Sample": [wildcards.sample],
-            "Warnings": [label]
+        samples_list = []
+        percent_aligned_list = []
+        mean_coverage_list = []
+        freemix_list = []
+        for sample_name, qualimap_dir, selfsm_txt in zip(sample_names, input.qualimap_dirs, input.selfsm_txts):
+            # Grab the sample name
+            samples_list.append(sample_name)
+            # Grab percentage of reads aligned and the mean coverage
+            with open(qualimap_dir + "/genome_results.txt" , "r") as genome_results:
+                for line in genome_results:
+                    if "number of mapped reads" in line:  
+                        start = line.find("(") + 1
+                        end = line.find("%")
+                        percent_aligned = float(line[start:end])
+                        percent_aligned_list.append(percent_aligned)
+                    elif "mean coverageData" in line:
+                        start = line.find("=") + 2
+                        end = line.find("X")
+                        mean_coverage = float(line[start:end])
+                        mean_coverage_list.append(mean_coverage)
+            # Grab the verifybamid freemix score
+            with open(selfsm_txt, "r") as selfsm:
+                lines = selfsm.readlines()
+                selfsm_values = lines[1].split('\t')
+                freemix = float(selfsm_values[6])
+                freemix_list.append(freemix)
+        # Create a dataframe containing each bam's statistics
+        bams_stats = {
+            "Sample": samples_list,
+            "Percent Aligned": percent_aligned_list,
+            "Mean Coverage": mean_coverage_list,
+            "Freemix": freemix_list
         }
-        bam_df = pd.DataFrame(bam_data)
+        stats_df = pd.DataFrame(bams_stats)
         # Write the dataframe to a csv file
-        bam_df.to_csv(output.bam_csv, index=False)
+        stats_df.to_csv(output.stats_csv, index=False)
 
-# Aggregate all individual sample csv's into one
-rule aggcsv:
+# Function to assign warnings for each sample row
+def assign_warnings(row):
+            warnings = []
+            if row["Percent Aligned"] < config["percent_aligned"]:
+                warnings.append("LOW PERCENT ALIGNED")
+            if row["Mean Coverage"] < config["mean_coverage"]:
+                warnings.append("LOW MEAN COVERAGE")
+            if row["Freemix"] >= config["freemix"]:
+                warnings.append("FREEMIX CONTAMINATION")    
+            return "/".join(warnings)
+
+# Generate a csv detailing all contaminated samples and the reason why
+rule contamcsv:
     input:
-        expand("results/{sample}/{sample}.csv", sample=sample_names)
+        stats_csv=config["stats_csv"]
     output:
         contam_csv=config["contam_csv"]
     run:
-        # Read in every individual csv
-        sample_dfs = [pd.read_csv(file) for file in input]
-        # Stack the csv's together to create a new csv
-        concat_df = pd.concat(sample_dfs, ignore_index=True)
-        concat_df = concat_df[concat_df["Warnings"].notna()]
-        concat_df.to_csv(output.contam_csv, index=False)
+        # Read in stats csv
+        warnings_df = pd.read_csv(input.stats_csv)
+        # Generate warnings for each sample row
+        warnings_df["Warnings"] = warnings_df.apply(assign_warnings, axis=1)
+        # Get rid of any rows with no warnings
+        warnings_df = warnings_df[warnings_df["Warnings"] != ""]
+        # Get rid of columns other than Sample and Warnings
+        warnings_df = warnings_df[["Sample","Warnings"]]
+        # Write the dataframe to a csv file
+        warnings_df.to_csv(output.contam_csv, index=False)
 
 # Aggregate all pc coordinates together
 rule aggcoords:
