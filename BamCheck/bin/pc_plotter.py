@@ -12,7 +12,7 @@ ref_df = pd.read_csv("data/verifybamid/resource_files/dog_wgs.n3973.UU_Cfam_GSD_
 )
 
 # Create a new column identifying the breed of the dog
-ref_df["Breed"] = ref_df["Sample Name"].str[0:4]
+ref_df["Breed"] = ref_df["Sample Name"].str.split("#").str[0]
 
 # Create a new column identifying the points as reference points
 ref_df["Type"] = "Reference"
