@@ -40,6 +40,7 @@ BamCheck can be configured differently based on the user's own preferences. To c
 - percent_aligned: The minimum threshold for the percentage of reads that should align to the reference genome. Defaults to 95.
 - mean_coverage: The minimum threshold for the mean coverage or depth of the genome. Defaults to 20.
 - freemix: The maximum threshold for the freemix score. The freemix score is calculated by VerifyBamID and estimates intraspecies contamination. While the threshold is normally set to 0.05 for humans, this was found to be too strict for canines. Defaults to 0.10. 
+- p_value: The minimum threshold for the p-value associated with the robust Mahalanobis distance of each sample. It represents the probability that a sample belonging to the specified breed would be found at the PC coordinates of the current sample or farther. Defaults to 0.05.
 
 **3. Running BamCheck**
 
@@ -51,6 +52,7 @@ BamCheck's main output is the CSV file specified by contam_csv, which will list 
 - LOW PERCENT ALIGNED: Sample failed the percent_aligned threshold.
 - LOW MEAN COVERAGE: Sample failed the mean_coverage threshold.
 - FREEMIX CONTAMINATION: Sample failed the freemix threshold.
+- BREED MISMATCH: Sample failed the p_value threshold. Note, the p-value is only calculated for breeds with >= 30 samples in the reference panel. The rest of the breeds will require visual inspection to determine breed mismatches.
 
 BamCheck's secondary output are the PCA plots located in the directory specified by pc_csv. A PCA plot will be generated for each unique breed in the input CSV file, as long as the breed is also present in the reference panel. The output HTML file will be named pc_{breed-abbreviation}.html. By opening this file in a web browser, you can manually identify breed mismatches. Blue dots correspond to the breed in question, whereas gray dots correspond to all other breeds. A black outline around a blue dot specifies that it came from a sample in the input CSV file. If such a dot is far enough away from all other blue dots, than it can be tenatively concluded that the sample's breed is incorrect.
 
