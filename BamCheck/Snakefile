@@ -57,6 +57,48 @@ rule verifybamid:
         --NumThread {threads}
         """
 
+# Aggregate all pc coordinates together
+rule aggcoords:
+    input: 
+        coords=expand("results/{sample}/{sample}.Ancestry", sample=sample_names),
+    output:
+        pc_csv=config["pc_csv"]
+    run:
+        coords_data = []
+        # For each ancestry file, create a dictionary containing the name, breed, and pc coordinate data
+        for file, name in zip(input.coords, sample_names):
+            coord_df = pd.read_csv(file, sep='\t')
+            coords_data.append({
+                "Sample": name,
+                "Breed": sample_dict_breed[name],
+                "PC1": coord_df.loc[0, "IntendedSample"],
+                "PC2": coord_df.loc[1, "IntendedSample"],
+                "PC3": coord_df.loc[2, "IntendedSample"]
+            })
+        # Create a new dataframe from all of the dictionaries and write it to a csv file
+        coords_df = pd.DataFrame(coords_data)
+        coords_df.to_csv(output.pc_csv, index=False)
+
+# Generate pc plots for each breed
+rule pcplot:
+    input: 
+        config["pc_csv"]
+    output:
+        config["pc_plot"] + "/pc_{breed}.html"
+    script:
+        "bin/pc_plotter.py"
+
+
+# Calculate the p-value associated with the robust Mahalanobis distance of each sample
+rule calcpvals:
+    input:  
+        pc_csv=config["pc_csv"]
+    output:
+        pvals=temp("tmp/pvals.csv")
+    script:
+        "bin/robust_mcd.py"
+
+
 # Generate a temporary coordinate sorted bam
 rule coordinatesortbam:
     input:
@@ -93,7 +135,8 @@ rule qualimap:
 rule statscsv:
     input:
         qualimap_dirs = expand("results/{sample}/{sample}.qualimap", sample=sample_names),
-        selfsm_txts = expand("results/{sample}/{sample}.selfSM", sample=sample_names)
+        selfsm_txts = expand("results/{sample}/{sample}.selfSM", sample=sample_names),
+        pvals="tmp/pvals.csv"
     output:
         stats_csv=config["stats_csv"]
     run:
@@ -131,6 +174,9 @@ rule statscsv:
             "Freemix": freemix_list
         }
         stats_df = pd.DataFrame(bams_stats)
+        # Add p-values to dataframe
+        pvals_df = pd.read_csv(input.pvals)
+        stats_df = pd.merge(stats_df, pvals_df, on="Sample")
         # Write the dataframe to a csv file
         stats_df.to_csv(output.stats_csv, index=False)
 
@@ -142,7 +188,9 @@ def assign_warnings(row):
             if row["Mean Coverage"] < config["mean_coverage"]:
                 warnings.append("LOW MEAN COVERAGE")
             if row["Freemix"] >= config["freemix"]:
-                warnings.append("FREEMIX CONTAMINATION")    
+                warnings.append("FREEMIX CONTAMINATION") 
+            if row["P-value"] < config["p_value"]:
+                warnings.append("BREED MISMATCH")
             return "/".join(warnings)
 
 # Generate a csv detailing all contaminated samples and the reason why
@@ -162,45 +210,3 @@ rule contamcsv:
         warnings_df = warnings_df[["Sample","Warnings"]]
         # Write the dataframe to a csv file
         warnings_df.to_csv(output.contam_csv, index=False)
-
-# Aggregate all pc coordinates together
-rule aggcoords:
-    input: 
-        coords=expand("results/{sample}/{sample}.Ancestry", sample=sample_names),
-    output:
-        pc_csv=config["pc_csv"]
-    run:
-        coords_data = []
-        # For each ancestry file, create a dictionary containing the name, breed, and pc coordinate data
-        for file, name in zip(input.coords, sample_names):
-            coord_df = pd.read_csv(file, sep='\t')
-            coords_data.append({
-                "Sample Name": name,
-                "Breed": sample_dict_breed[name],
-                "PC1": coord_df.loc[0, "IntendedSample"],
-                "PC2": coord_df.loc[1, "IntendedSample"],
-                "PC3": coord_df.loc[2, "IntendedSample"]
-            })
-        # Create a new dataframe from all of the dictionaries and write it to a csv file
-        coords_df = pd.DataFrame(coords_data)
-        coords_df.to_csv(output.pc_csv, index=False)
-
-# Generate pc plots for each breed
-rule pcplot:
-    input: 
-        config["pc_csv"]
-    output:
-        config["pc_plot"] + "/pc_{breed}.html"
-    script:
-        "bin/pc_plotter.py"
-
-        
-
-            
-
-
-
-
-
-
-

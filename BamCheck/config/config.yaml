@@ -27,3 +27,6 @@ mean_coverage: 20
 
 # Maximum threshold for freemix score
 freemix: 0.10
+
+# Minimum threshold for p-value associated with the robust Mahalanobis distance
+p_value: 0.05
